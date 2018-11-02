@@ -10,4 +10,47 @@
         <artifactId>mediator</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <imageName>uiobmi/mediator.client</imageName>
+                    <baseImage>openjdk:8-jre-alpine</baseImage>
+                    <!-- Next line needs to be a single line, otherwise plugin crashes-->
+                    <entryPoint>["java", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005", "-jar", "/${project.build.finalName}.jar", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap"]
+                    </entryPoint>
+                    <healthcheck>
+                        <options>--interval=10s</options>
+                        <cmd>curl --fail http://localhost:8080/healthcheck || exit 1</cmd>
+                    </healthcheck>
+                    <!-- copy the service's jar fileDescriptor from target into the root directory of the image -->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
