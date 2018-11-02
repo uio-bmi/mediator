@@ -1,0 +1,11 @@
+logging.level.root: info
+
+management.endpoints.web:
+  base-path: /
+  path-mapping.health: healthcheck
+
+spring.rabbitmq:
+  username: ${BROKER_USERNAME:guest}
+  password: ${BROKER_PASSWORD:guest}
+  host: ${BROKER_HOST:mq}
+  port: ${BROKER_PORT:5672}
