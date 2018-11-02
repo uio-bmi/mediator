@@ -1,0 +1,36 @@
+version: '3.2'
+
+networks:
+  mediator_public:
+    external: true
+  mediator_remote:
+    external: true
+
+services:
+
+  public-mq:
+    image: rabbitmq:3.6.14-management
+    container_name: public-mq
+    hostname: public-mq
+    ports:
+    - "15670:15672"
+    - "5670:5672"
+    networks:
+    - mediator_public
+    - mediator_remote
+    environment:
+    - CEGA_CONNECTION=amqp://lega:guest@remote-mq:5672/lega
+    volumes:
+    - ./public_mq/defs.json:/etc/rabbitmq/defs.json
+    - ./public_mq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+    - ./public_mq/entrypoint.sh:/usr/bin/ega-entrypoint.sh
+    entrypoint: ["/bin/bash", "/usr/bin/ega-entrypoint.sh"]
+    command: ["rabbitmq-server"]
+
+  mediator-client:
+    image: uiobmi/mediator.client:latest
+    container_name: mediator-client
+    hostname: mediator-client
+    networks:
+    - mediator_private
+    - mediator_public

@@ -1,0 +1,20 @@
+version: '3.2'
+
+networks:
+  remote:
+    driver: bridge
+  public:
+    driver: bridge
+  private:
+    driver: bridge
+
+services:
+
+  dummy:
+    image: hello-world:latest
+    container_name: dummy
+    hostname: dummy
+    networks:
+    - remote
+    - private
+    - public

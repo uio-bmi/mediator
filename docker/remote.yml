@@ -1,0 +1,20 @@
+version: '3.2'
+
+networks:
+  mediator_remote:
+    external: true
+
+services:
+
+  remote-mq:
+    image: rabbitmq:3.6.14-management
+    container_name: remote-mq
+    hostname: remote-mq
+    ports:
+    - "15672:15672"
+    - "5672:5672"
+    networks:
+    - mediator_remote
+    volumes:
+    - ./remote_mq/defs.json:/etc/rabbitmq/defs.json:ro
+    - ./remote_mq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
