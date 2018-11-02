@@ -1,4 +1,4 @@
 # Mediator
-Mediator works as a proxy between UH IAAS and secure storage like TSD
-Mediator Server is responsible for receiving request sent to the Secure storage cloud 
-Mediator Client is calling the server sending requests from publicly exposed cloud and 
+Mediator works as a proxy between public infrastructure like UH IaaS and secure infrastructure like TSD:
+
+![](https://habrastorage.org/webt/kw/wm/v1/kwwmv1zlfuns8ioli4vgtf869tw.png)
