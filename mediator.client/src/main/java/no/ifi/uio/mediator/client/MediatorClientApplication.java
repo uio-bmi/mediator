@@ -1,5 +1,7 @@
 package no.ifi.uio.mediator.client;
 
+import org.springframework.amqp.rabbit.support.DefaultMessagePropertiesConverter;
+import org.springframework.amqp.rabbit.support.MessagePropertiesConverter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -21,6 +23,11 @@ public class MediatorClientApplication {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    @Bean
+    public MessagePropertiesConverter messagePropertiesConverter() {
+        return new DefaultMessagePropertiesConverter();
     }
 
 }
