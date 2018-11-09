@@ -4,10 +4,12 @@ management.endpoints.web:
   base-path: /
   path-mapping.health: healthcheck
 
-spring.rabbitmq:
-  username: ${BROKER_USERNAME:guest}
-  password: ${BROKER_PASSWORD:guest}
-  host: ${BROKER_HOST:mq}
-  port: ${BROKER_PORT:5672}
+spring:
+  http.converters.preferred-json-mapper: gson
+  rabbitmq:
+    username: ${BROKER_USERNAME:guest}
+    password: ${BROKER_PASSWORD:guest}
+    host: ${BROKER_HOST:private-mq}
+    port: ${BROKER_PORT:5672}
 
 queues: completed

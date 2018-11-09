@@ -1,6 +1,7 @@
 package no.ifi.uio.mediator.server.rest;
 
 import com.rabbitmq.client.GetResponse;
+import lombok.extern.slf4j.Slf4j;
 import no.ifi.uio.mediator.server.service.RabbitMQService;
 import org.springframework.amqp.core.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Collection;
 
+@Slf4j
 @Controller
 public class RabbitMQController {
 
@@ -25,16 +27,18 @@ public class RabbitMQController {
         try {
             rabbitMQService.postMessage(message);
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/get}")
+    @GetMapping("/get")
     public ResponseEntity<Collection<GetResponse>> getMessages() {
         try {
             return ResponseEntity.ok(rabbitMQService.getMessages());
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -54,6 +58,7 @@ public class RabbitMQController {
         try {
             rabbitMQService.ackMessages(deliveryTags);
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.OK).build();

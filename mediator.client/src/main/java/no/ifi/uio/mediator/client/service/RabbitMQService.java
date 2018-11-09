@@ -56,6 +56,7 @@ public class RabbitMQService {
         if (messages == null) {
             return;
         }
+        log.info("Received {} messages.", messages.size());
         for (GetResponse message : messages) {
             Envelope envelope = message.getEnvelope();
             String exchange = envelope.getExchange();

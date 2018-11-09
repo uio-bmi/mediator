@@ -28,6 +28,7 @@ services:
     hostname: mediator-server
     ports:
     - "8080:8080"
+#    - "6006:6006"
     networks:
     - mediator_private
     - mediator_public

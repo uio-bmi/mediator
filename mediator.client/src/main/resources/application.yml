@@ -5,10 +5,11 @@ management.endpoints.web:
   path-mapping.health: healthcheck
 
 spring:
+  http.converters.preferred-json-mapper: gson
   rabbitmq:
     username: ${BROKER_USERNAME:guest}
     password: ${BROKER_PASSWORD:guest}
-    host: ${BROKER_HOST:mq}
+    host: ${BROKER_HOST:public-mq}
     port: ${BROKER_PORT:5672}
     listener.simple.acknowledge-mode: manual
     listener.direct.acknowledge-mode: manual

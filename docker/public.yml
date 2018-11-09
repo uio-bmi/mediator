@@ -31,6 +31,8 @@ services:
     image: uiobmi/mediator.client:latest
     container_name: mediator-client
     hostname: mediator-client
+#    ports:
+#    - "5005:5005"
     networks:
     - mediator_private
     - mediator_public
