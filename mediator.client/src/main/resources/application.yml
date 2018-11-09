@@ -4,8 +4,17 @@ management.endpoints.web:
   base-path: /
   path-mapping.health: healthcheck
 
-spring.rabbitmq:
-  username: ${BROKER_USERNAME:guest}
-  password: ${BROKER_PASSWORD:guest}
-  host: ${BROKER_HOST:mq}
-  port: ${BROKER_PORT:5672}
+spring:
+  rabbitmq:
+    username: ${BROKER_USERNAME:guest}
+    password: ${BROKER_PASSWORD:guest}
+    host: ${BROKER_HOST:mq}
+    port: ${BROKER_PORT:5672}
+    listener.simple.acknowledge-mode: manual
+    listener.direct.acknowledge-mode: manual
+  cloud.refresh.refreshable: none
+
+queues: archived
+
+mediator-server:
+  listOfServers: ${MEDIATOR_SERVER:mediator-server:8080}
