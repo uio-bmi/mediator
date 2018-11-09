@@ -13,6 +13,8 @@ spring:
     port: ${BROKER_PORT:5672}
     listener.simple.acknowledge-mode: manual
     listener.direct.acknowledge-mode: manual
+    cache.channel.size: 1
+    cache.connection.size: 1
   cloud.refresh.refreshable: none
 
 queues: archived

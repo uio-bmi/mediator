@@ -11,5 +11,11 @@ spring:
     password: ${BROKER_PASSWORD:guest}
     host: ${BROKER_HOST:private-mq}
     port: ${BROKER_PORT:5672}
+    cache.channel.size: 1
+    cache.connection.size: 1
 
-queues: completed
+queue: mediator
+
+exchange: lega
+
+keys: completed

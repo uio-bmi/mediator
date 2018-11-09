@@ -25,8 +25,8 @@ public class RabbitMQService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @Value("#{'${queues}'.split(',')}")
-    private String[] queues;
+    @Value("${queue}")
+    private String queueName;
 
     public synchronized void postMessage(Message message) {
         MessageProperties messageProperties = message.getMessageProperties();
@@ -38,12 +38,12 @@ public class RabbitMQService {
     public synchronized Collection<GetResponse> getMessages() {
         Collection<GetResponse> messages = new ArrayList<>();
         rabbitTemplate.execute(channel -> {
-            for (String queue : queues) {
-                Object messageCount = rabbitAdmin.getQueueProperties(queue).get(RabbitAdmin.QUEUE_MESSAGE_COUNT);
-                int messagesToRead = messageCount == null ? 0 : (int) messageCount;
-                for (int i = 0; i < messagesToRead; i++) {
-                    messages.add(channel.basicGet(queue, false));
-                }
+            log.info("Channel: {}.", channel.hashCode());
+            Object messageCount = rabbitAdmin.getQueueProperties(queueName).get(RabbitAdmin.QUEUE_MESSAGE_COUNT);
+            int messagesToRead = messageCount == null ? 0 : (int) messageCount;
+            for (int i = 0; i < messagesToRead; i++) {
+                GetResponse getResponse = channel.basicGet(queueName, false);
+                messages.add(getResponse);
             }
             return null;
         });
@@ -52,6 +52,7 @@ public class RabbitMQService {
 
     public synchronized void ackMessage(long deliveryTag) {
         rabbitTemplate.execute((ChannelCallback<Void>) channel -> {
+            log.info("Channel: {}.", channel.hashCode());
             channel.basicAck(deliveryTag, false);
             return null;
         });

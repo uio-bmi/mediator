@@ -10,6 +10,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.support.MessagePropertiesConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -44,10 +46,13 @@ public class RabbitMQService {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Scheduled(initialDelay = 10000, fixedRate = 10000)
     public void dumpMessages() {
-        ResponseEntity<Collection> responseEntity = restTemplate.getForEntity("http://mediator-server/get", Collection.class);
+        ResponseEntity<Collection<GetResponse>> responseEntity = restTemplate.exchange("http://mediator-server/get",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Collection<GetResponse>>() {
+                });
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
             log.error(responseEntity.toString());
             return;
