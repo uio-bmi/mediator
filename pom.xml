@@ -22,7 +22,6 @@
     <modules>
         <module>mediator.client</module>
         <module>mediator.server</module>
-        <module>mediator.shared</module>
     </modules>
 
     <dependencies>

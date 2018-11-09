@@ -1,6 +1,11 @@
 package no.ifi.uio.mediator.server;
 
+import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.Connection;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.support.DefaultMessagePropertiesConverter;
+import org.springframework.amqp.rabbit.support.MessagePropertiesConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -9,8 +14,6 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Spring Boot application's main class with some configuration and some beans defined.
@@ -34,12 +37,14 @@ public class MediatorServerApplication implements WebMvcConfigurer {
     @Value("${keys}")
     private String[] routingKeys;
 
-    @PostConstruct
-    public void init() {
+    @Bean
+    public Channel channel(@Autowired ConnectionFactory connectionFactory) {
         for (String routingKey : routingKeys) {
             Binding binding = BindingBuilder.bind(queue()).to(exchange()).with(routingKey).noargs();
             rabbitAdmin.declareBinding(binding);
         }
+        Connection connection = connectionFactory.createConnection();
+        return connection.createChannel(false);
     }
 
     @Bean
@@ -50,6 +55,11 @@ public class MediatorServerApplication implements WebMvcConfigurer {
     @Bean
     public Queue queue() {
         return new Queue(queueName, true, false, false);
+    }
+
+    @Bean
+    public MessagePropertiesConverter messagePropertiesConverter() {
+        return new DefaultMessagePropertiesConverter();
     }
 
 }
