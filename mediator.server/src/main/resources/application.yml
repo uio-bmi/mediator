@@ -9,3 +9,5 @@ spring.rabbitmq:
   password: ${BROKER_PASSWORD:guest}
   host: ${BROKER_HOST:mq}
   port: ${BROKER_PORT:5672}
+
+queues: completed

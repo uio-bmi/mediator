@@ -30,17 +30,17 @@ public class RabbitMQController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/get/{queue}")
-    public ResponseEntity<Collection<GetResponse>> getMessages(@PathVariable String queue) {
+    @GetMapping("/get}")
+    public ResponseEntity<Collection<GetResponse>> getMessages() {
         try {
-            return ResponseEntity.ok(rabbitMQService.getMessages(queue));
+            return ResponseEntity.ok(rabbitMQService.getMessages());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/ack")
-    public ResponseEntity ackMessage(@RequestBody long deliveryTag) {
+    @PostMapping("/ack/{deliveryTag}")
+    public ResponseEntity ackMessage(@PathVariable long deliveryTag) {
         try {
             rabbitMQService.ackMessage(deliveryTag);
         } catch (Exception e) {

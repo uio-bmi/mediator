@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.core.ChannelCallback;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,6 +25,9 @@ public class RabbitMQService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
+    @Value("#{'${queues}'.split(',')}")
+    private String[] queues;
+
     public synchronized void postMessage(Message message) {
         MessageProperties messageProperties = message.getMessageProperties();
         String exchange = messageProperties.getReceivedExchange();
@@ -31,16 +35,19 @@ public class RabbitMQService {
         rabbitTemplate.send(exchange, routingKey, message);
     }
 
-    public synchronized Collection<GetResponse> getMessages(String queue) {
-        Object messageCount = rabbitAdmin.getQueueProperties(queue).get(RabbitAdmin.QUEUE_MESSAGE_COUNT);
-        int messagesToRead = messageCount == null ? 0 : (int) messageCount;
-        return rabbitTemplate.execute(channel -> {
-            Collection<GetResponse> messages = new ArrayList<>();
-            for (int i = 0; i < messagesToRead; i++) {
-                messages.add(channel.basicGet(queue, false));
+    public synchronized Collection<GetResponse> getMessages() {
+        Collection<GetResponse> messages = new ArrayList<>();
+        rabbitTemplate.execute(channel -> {
+            for (String queue : queues) {
+                Object messageCount = rabbitAdmin.getQueueProperties(queue).get(RabbitAdmin.QUEUE_MESSAGE_COUNT);
+                int messagesToRead = messageCount == null ? 0 : (int) messageCount;
+                for (int i = 0; i < messagesToRead; i++) {
+                    messages.add(channel.basicGet(queue, false));
+                }
             }
-            return messages;
+            return null;
         });
+        return messages;
     }
 
     public synchronized void ackMessage(long deliveryTag) {
