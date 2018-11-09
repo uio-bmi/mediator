@@ -41,6 +41,16 @@ public class RabbitMQController {
         }
     }
 
+    @GetMapping("/ack")
+    public ResponseEntity ackMessage(@RequestBody long deliveryTag) {
+        try {
+            rabbitMQService.ackMessage(deliveryTag);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @PostMapping("/ack")
     public ResponseEntity ackMessages(@RequestBody Collection<Long> deliveryTags) {
         try {

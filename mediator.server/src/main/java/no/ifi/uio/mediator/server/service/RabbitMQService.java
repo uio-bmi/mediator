@@ -39,6 +39,13 @@ public class RabbitMQService {
         });
     }
 
+    public synchronized void ackMessage(long deliveryTag) {
+        rabbitTemplate.execute((ChannelCallback<Void>) channel -> {
+            channel.basicAck(deliveryTag, false);
+            return null;
+        });
+    }
+
     public synchronized void ackMessages(Collection<Long> deliveryTags) {
         rabbitTemplate.execute((ChannelCallback<Void>) channel -> {
             for (Long deliveryTag : deliveryTags) {
