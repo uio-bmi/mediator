@@ -20,12 +20,10 @@ public class RabbitMQController {
     @Autowired
     private RabbitMQService rabbitMQService;
 
-    @PostMapping("/post/{exchange}/{routingKey}")
-    public ResponseEntity postMessage(@PathVariable String exchange,
-                                      @PathVariable String routingKey,
-                                      @RequestBody Message message) {
+    @PostMapping("/post")
+    public ResponseEntity postMessage(@RequestBody Message message) {
         try {
-            rabbitMQService.postMessage(exchange, routingKey, message);
+            rabbitMQService.postMessage(message);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

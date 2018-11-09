@@ -4,6 +4,7 @@ import com.rabbitmq.client.GetResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.ChannelCallback;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -23,7 +24,10 @@ public class RabbitMQService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    public synchronized void postMessage(String exchange, String routingKey, Message message) {
+    public synchronized void postMessage(Message message) {
+        MessageProperties messageProperties = message.getMessageProperties();
+        String exchange = messageProperties.getReceivedExchange();
+        String routingKey = messageProperties.getReceivedRoutingKey();
         rabbitTemplate.send(exchange, routingKey, message);
     }
 
