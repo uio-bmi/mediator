@@ -58,7 +58,7 @@ public class RabbitMQService {
             return;
         }
         Collection<GetResponse> messages = responseEntity.getBody();
-        if (messages == null) {
+        if (messages == null || messages.size() == 0) {
             return;
         }
         log.info("Received {} messages.", messages.size());
