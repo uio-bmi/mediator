@@ -15,6 +15,10 @@ spring:
     listener.direct.acknowledge-mode: manual
   cloud.refresh.refreshable: none
 
+initial-delay: 10000
+
+fixed-rate: 10000
+
 queues: archived
 
 mediator-server:

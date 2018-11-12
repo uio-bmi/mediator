@@ -62,7 +62,7 @@ public class RabbitMQService {
      * Runs on schedule, requesting all new messages from the Server and putting them to the Broker.
      * Acknowledges Server after successful message forwarding.
      */
-    @Scheduled(initialDelay = 10000, fixedRate = 10000)
+    @Scheduled(initialDelayString = "${initial-delay}", fixedRateString = "${fixed-rate}")
     public void dumpMessages() {
         ResponseEntity<Collection<GetResponse>> responseEntity = restTemplate.exchange("http://mediator-server/get",
                 HttpMethod.GET,
