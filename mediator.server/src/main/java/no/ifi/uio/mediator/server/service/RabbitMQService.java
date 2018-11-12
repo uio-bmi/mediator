@@ -15,6 +15,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * Service for:
+ * - posting message received from the Client to the Broker;
+ * - getting all messages from the Broker and sending them to the Client (upon request);
+ * - acknowledging messages receiving on the Client's side.
+ */
 @Slf4j
 @Service
 public class RabbitMQService {
@@ -28,6 +34,12 @@ public class RabbitMQService {
     @Value("${queue}")
     private String queueName;
 
+    /**
+     * Publishes message to the Broker (as is).
+     *
+     * @param message Message, received from the Client.
+     * @throws IOException In case of error during publishing.
+     */
     public synchronized void postMessage(Message message) throws IOException {
         MessageProperties messageProperties = message.getMessageProperties();
         String exchange = messageProperties.getReceivedExchange();
@@ -38,6 +50,12 @@ public class RabbitMQService {
                 message.getBody());
     }
 
+    /**
+     * Gets and returns all messages that are ready from the Broker.
+     *
+     * @return Collection of messages as GetResponse entities.
+     * @throws IOException In case of error during messages retrieving.
+     */
     public synchronized Collection<GetResponse> getMessages() throws IOException {
         Collection<GetResponse> messages = new ArrayList<>();
         long messagesToRead = channel.messageCount(queueName);
@@ -48,10 +66,21 @@ public class RabbitMQService {
         return messages;
     }
 
+    /**
+     * Acknowledges single message by its delivery tag.
+     *
+     * @param deliveryTag Delivery tag of a message.
+     * @throws IOException In case of error during message acknowledging.
+     */
     public synchronized void ackMessage(long deliveryTag) throws IOException {
         channel.basicAck(deliveryTag, false);
     }
 
+    /**
+     * Acknowledges multiple messages at once by their delivery tags.
+     *
+     * @param deliveryTags Delivery tags to use for acknowledging.
+     */
     public synchronized void ackMessages(Collection<Long> deliveryTags) {
         for (Long deliveryTag : deliveryTags) {
             try {
