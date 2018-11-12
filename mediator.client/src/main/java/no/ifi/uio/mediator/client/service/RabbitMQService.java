@@ -21,6 +21,11 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
+/**
+ * Service for:
+ * - forwarding messages from the Broker to the Server side;
+ * - getting messages from Server and placing them to a Broker.
+ */
 @Slf4j
 @Service
 public class RabbitMQService {
@@ -34,6 +39,13 @@ public class RabbitMQService {
     @Autowired
     private MessagePropertiesConverter messagePropertiesConverter;
 
+    /**
+     * Listens to queues, specified in properties, and sends received messages to the Server.
+     * Acknowledges Broker after successful message forwarding.
+     *
+     * @param channel RabbitMQ channel.
+     * @param message Received message.
+     */
     @RabbitListener(queues = "#{'${queues}'.split(',')}")
     public void receiveMessage(Channel channel, Message message) {
         ResponseEntity<Void> responseEntity = restTemplate.postForEntity("http://mediator-server/post", message, Void.class);
@@ -46,6 +58,10 @@ public class RabbitMQService {
         }
     }
 
+    /**
+     * Runs on schedule, requesting all new messages from the Server and putting them to the Broker.
+     * Acknowledges Server after successful message forwarding.
+     */
     @Scheduled(initialDelay = 10000, fixedRate = 10000)
     public void dumpMessages() {
         ResponseEntity<Collection<GetResponse>> responseEntity = restTemplate.exchange("http://mediator-server/get",
