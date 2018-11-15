@@ -2,6 +2,8 @@ language: java
 
 services: docker
 
-before_install: mvn clean install -Dmaven.test.skip=true
+before_install: mvn install -Dmaven.test.skip=true
 
 install: cd docker && ./start.sh
+
+script: mvn test
