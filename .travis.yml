@@ -4,6 +4,6 @@ services: docker
 
 before_install: mvn install -Dmaven.test.skip=true
 
-install: cd docker && ./start.sh && cd ..
+install: cd docker && ./start.sh && sleep 10 && ./ps.sh && cd ..
 
 script: mvn test
