@@ -59,6 +59,9 @@ public class RabbitMQService {
     public synchronized Collection<GetResponse> getMessages() throws IOException {
         Collection<GetResponse> messages = new ArrayList<>();
         long messagesToRead = channel.messageCount(queueName);
+        if (messagesToRead != 0) {
+            log.info("Returning {} messages to the Client.");
+        }
         for (int i = 0; i < messagesToRead; i++) {
             GetResponse getResponse = channel.basicGet(queueName, false);
             messages.add(getResponse);
