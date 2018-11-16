@@ -9,7 +9,6 @@ import org.springframework.amqp.rabbit.support.MessagePropertiesConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -44,9 +43,12 @@ public class RabbitMQService {
         MessageProperties messageProperties = message.getMessageProperties();
         String exchange = messageProperties.getReceivedExchange();
         String routingKey = messageProperties.getReceivedRoutingKey();
+        log.info("Postinmg to exchange {}, with routing key {}, message {}", exchange, routingKey,
+                message.getBody().toString());
         channel.basicPublish(exchange,
                 routingKey,
-                messagePropertiesConverter.fromMessageProperties(messageProperties, Charset.defaultCharset().toString()),
+                messagePropertiesConverter.fromMessageProperties(messageProperties,
+                        Charset.defaultCharset().toString()),
                 message.getBody());
     }
 
@@ -60,7 +62,7 @@ public class RabbitMQService {
         Collection<GetResponse> messages = new ArrayList<>();
         long messagesToRead = channel.messageCount(queueName);
         if (messagesToRead != 0) {
-            log.info("Returning {} messages to the Client.");
+            log.info("Returning {} messages to the Client.", messagesToRead);
         }
         for (int i = 0; i < messagesToRead; i++) {
             GetResponse getResponse = channel.basicGet(queueName, false);
@@ -76,6 +78,7 @@ public class RabbitMQService {
      * @throws IOException In case of error during message acknowledging.
      */
     public synchronized void ackMessage(long deliveryTag) throws IOException {
+        log.info("Acknowledging {}", deliveryTag);
         channel.basicAck(deliveryTag, false);
     }
 
@@ -87,7 +90,7 @@ public class RabbitMQService {
     public synchronized void ackMessages(Collection<Long> deliveryTags) {
         for (Long deliveryTag : deliveryTags) {
             try {
-                channel.basicAck(deliveryTag, false);
+                ackMessage(deliveryTag);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
