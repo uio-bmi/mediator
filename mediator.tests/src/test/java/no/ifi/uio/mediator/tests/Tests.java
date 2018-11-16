@@ -20,9 +20,7 @@ public class Tests {
     private static Channel privateChannel;
 
     @BeforeClass
-    public static void setUp() throws IOException, TimeoutException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException, InterruptedException {
-        Thread.sleep(10000); // Docker Compose initialization delay
-
+    public static void setUp() throws IOException, TimeoutException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
         ConnectionFactory remoteFactory = new ConnectionFactory();
         remoteFactory.setUri("amqp://lega:guest@localhost:5672/lega");
         remoteChannel = remoteFactory.newConnection().createChannel();
