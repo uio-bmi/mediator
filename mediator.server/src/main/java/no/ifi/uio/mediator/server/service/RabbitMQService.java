@@ -57,6 +57,7 @@ public class RabbitMQService {
      * @throws IOException In case of error during messages retrieving.
      */
     public synchronized Collection<GetResponse> getMessages() throws IOException {
+        log.info("Got request from the Client."); // temporary for Travis
         Collection<GetResponse> messages = new ArrayList<>();
         long messagesToRead = channel.messageCount(queueName);
         if (messagesToRead != 0) {
