@@ -6,7 +6,6 @@ import com.rabbitmq.client.GetResponse;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -14,27 +13,28 @@ import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Integration tests:
- * - forwarding message from Public Infrastructure to Private Infrastructure;
- * - forwarding message from Private Infrastructure to CEGA.
+ * Integration tests: <br>- forwarding message from Public Infrastructure to Private Infrastructure; <br>-
+ * forwarding message from Private Infrastructure to CEGA.
  */
 public class Tests {
 
     private static Channel remoteChannel;
     private static Channel publicChannel;
     private static Channel privateChannel;
+    private static final byte[] SENT_BODY = {1, 2, 3};
 
     /**
      * Initializing connection to 3 queues: Remote (CEGA), Public (OpenStack) and Private (TSD).
      *
-     * @throws IOException              In case of error.
-     * @throws TimeoutException         In case of error.
+     * @throws IOException In case of error.
+     * @throws TimeoutException In case of error.
      * @throws NoSuchAlgorithmException In case of error.
-     * @throws KeyManagementException   In case of error.
-     * @throws URISyntaxException       In case of error.
+     * @throws KeyManagementException In case of error.
+     * @throws URISyntaxException In case of error.
      */
     @BeforeClass
-    public static void setUp() throws IOException, TimeoutException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
+    public static void setUp() throws IOException, TimeoutException, NoSuchAlgorithmException,
+            KeyManagementException, URISyntaxException {
         ConnectionFactory remoteFactory = new ConnectionFactory();
         remoteFactory.setUri("amqp://lega:guest@localhost:5672/lega");
         remoteChannel = remoteFactory.newConnection().createChannel();
@@ -51,35 +51,54 @@ public class Tests {
     /**
      * Forwarding message from Public Infrastructure to Private Infrastructure.
      *
-     * @throws IOException          In case of error.
+     * @throws IOException In case of error.
      * @throws InterruptedException In case of error.
      */
     @Test
     public void fromPublicToPrivate() throws IOException, InterruptedException {
-        byte[] sentBody = {1, 2, 3};
-        publicChannel.basicPublish("lega", "archived", null, sentBody);
-        Thread.sleep(10000);
+
+        publicChannel.basicPublish("lega", "archived", null, SENT_BODY);
+        sleep(10000);
         GetResponse getResponse = privateChannel.basicGet("archived", true);
         Assert.assertNotNull(getResponse);
         byte[] receivedBody = getResponse.getBody();
-        Assert.assertArrayEquals(sentBody, receivedBody);
+        Assert.assertArrayEquals(SENT_BODY, receivedBody);
     }
 
     /**
-     * Forwarding message from Private Infrastructure to CEGA
+     * Forwarding message from Private Infrastructure to CEGA with routing code completed
      *
-     * @throws IOException          In case of error.
+     * @throws IOException In case of error.
      * @throws InterruptedException In case of error.
      */
     @Test
-    public void fromPrivateToRemote() throws IOException, InterruptedException {
-        byte[] sentBody = {1, 2, 3};
-        privateChannel.basicPublish("lega", "completed", null, sentBody);
-        Thread.sleep(20000);
+    public void fromPrivateToRemoteRoutingKeyCompleted() throws IOException, InterruptedException {
+        privateChannel.basicPublish("lega", "completed", null, SENT_BODY);
+        sleep(20000);
         GetResponse getResponse = remoteChannel.basicGet("v1.completed", true);
         Assert.assertNotNull(getResponse);
         byte[] receivedBody = getResponse.getBody();
-        Assert.assertArrayEquals(sentBody, receivedBody);
+        Assert.assertArrayEquals(SENT_BODY, receivedBody);
+    }
+
+    /**
+     * Forwarding message from Private Infrastructure to CEGA with routing code incompleted
+     *
+     * @throws IOException In case of error.
+     * @throws InterruptedException In case of error.
+     */
+    @Test
+    public void fromPrivateToRemoteRoutingKeyIncompleted() throws IOException, InterruptedException {
+        privateChannel.basicPublish("lega", "incompleted", null, SENT_BODY);
+        sleep(20000);
+        GetResponse getResponse = remoteChannel.basicGet("v1.incompleted", true);
+        Assert.assertNotNull(getResponse);
+        byte[] receivedBody = getResponse.getBody();
+        Assert.assertArrayEquals(SENT_BODY, receivedBody);
+    }
+
+    private void sleep(int milliSeconds) throws InterruptedException {
+        Thread.sleep(milliSeconds);
     }
 
 }

@@ -16,4 +16,4 @@ queue: mediator
 
 exchange: lega
 
-keys: completed
+keys: completed, incompleted
