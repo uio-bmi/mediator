@@ -1,6 +1,7 @@
 package no.ifi.uio.mediator.server;
 
 import com.rabbitmq.client.Channel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * Spring Boot application's main class with some configuration and some beans defined.
  */
+@Slf4j
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class, JacksonAutoConfiguration.class})
 public class MediatorServerApplication implements WebMvcConfigurer {
 
@@ -42,6 +44,7 @@ public class MediatorServerApplication implements WebMvcConfigurer {
         for (String routingKey : routingKeys) {
             Binding binding = BindingBuilder.bind(queue()).to(exchange()).with(routingKey).noargs();
             rabbitAdmin.declareBinding(binding);
+            log.info("Binding created: {}", binding);
         }
         Connection connection = connectionFactory.createConnection();
         return connection.createChannel(false);

@@ -20,9 +20,7 @@ public class Tests {
     private static Channel privateChannel;
 
     @BeforeClass
-    public static void setUp() throws IOException, TimeoutException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException, InterruptedException {
-        Thread.sleep(10000); // Docker Compose initialization delay
-
+    public static void setUp() throws IOException, TimeoutException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
         ConnectionFactory remoteFactory = new ConnectionFactory();
         remoteFactory.setUri("amqp://lega:guest@localhost:5672/lega");
         remoteChannel = remoteFactory.newConnection().createChannel();
@@ -40,7 +38,7 @@ public class Tests {
     public void fromPublicToPrivate() throws IOException, InterruptedException {
         byte[] sentBody = {1, 2, 3};
         publicChannel.basicPublish("lega", "archived", null, sentBody);
-        Thread.sleep(20000); // for Travis
+        Thread.sleep(10000);
         GetResponse getResponse = privateChannel.basicGet("archived", true);
         Assert.assertNotNull(getResponse);
         byte[] receivedBody = getResponse.getBody();
@@ -51,7 +49,7 @@ public class Tests {
     public void fromPrivateToRemote() throws IOException, InterruptedException {
         byte[] sentBody = {1, 2, 3};
         privateChannel.basicPublish("lega", "completed", null, sentBody);
-        Thread.sleep(20000); // for Travis
+        Thread.sleep(20000);
         GetResponse getResponse = remoteChannel.basicGet("v1.completed", true);
         Assert.assertNotNull(getResponse);
         byte[] receivedBody = getResponse.getBody();
