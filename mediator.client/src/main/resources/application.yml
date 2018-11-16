@@ -19,7 +19,7 @@ initial-delay: 10000
 
 fixed-rate: 10000
 
-queues: archived
+queues: archived,unarchived
 
 mediator-server:
   listOfServers: ${MEDIATOR_SERVER:mediator-server:8080}

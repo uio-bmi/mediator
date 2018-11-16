@@ -49,13 +49,13 @@ public class Tests {
     }
 
     /**
-     * Forwarding message from Public Infrastructure to Private Infrastructure.
+     * Forwarding message from Public Infrastructure to Private Infrastructure with routing key archived.
      *
      * @throws IOException In case of error.
      * @throws InterruptedException In case of error.
      */
     @Test
-    public void fromPublicToPrivate() throws IOException, InterruptedException {
+    public void fromPublicToPrivateRoutingKeyArchived() throws IOException, InterruptedException {
 
         publicChannel.basicPublish("lega", "archived", null, SENT_BODY);
         sleep(10000);
@@ -65,8 +65,26 @@ public class Tests {
         Assert.assertArrayEquals(SENT_BODY, receivedBody);
     }
 
+
     /**
-     * Forwarding message from Private Infrastructure to CEGA with routing code completed
+     * Forwarding message from Public Infrastructure to Private Infrastructure with routing key archived.
+     *
+     * @throws IOException In case of error.
+     * @throws InterruptedException In case of error.
+     */
+    @Test
+    public void fromPublicToPrivateRoutingKeyUnarchived() throws IOException, InterruptedException {
+        
+        publicChannel.basicPublish("lega", "unarchived", null, SENT_BODY);
+        sleep(10000);
+        GetResponse getResponse = privateChannel.basicGet("unarchived", true);
+        Assert.assertNotNull(getResponse);
+        byte[] receivedBody = getResponse.getBody();
+        Assert.assertArrayEquals(SENT_BODY, receivedBody);
+    }
+    
+    /**
+     * Forwarding message from Private Infrastructure to CEGA with routing key completed
      *
      * @throws IOException In case of error.
      * @throws InterruptedException In case of error.
@@ -82,7 +100,7 @@ public class Tests {
     }
 
     /**
-     * Forwarding message from Private Infrastructure to CEGA with routing code incompleted
+     * Forwarding message from Private Infrastructure to CEGA with routing key incompleted
      *
      * @throws IOException In case of error.
      * @throws InterruptedException In case of error.
