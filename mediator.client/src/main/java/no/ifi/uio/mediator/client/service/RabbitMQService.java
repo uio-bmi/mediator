@@ -64,7 +64,6 @@ public class RabbitMQService {
      */
     @Scheduled(initialDelayString = "${initial-delay}", fixedRateString = "${fixed-rate}")
     public void dumpMessages() {
-        log.info("Requesting messages from the Server."); // temporary for Travis
         ResponseEntity<Collection<GetResponse>> responseEntity = restTemplate.exchange("http://mediator-server/get",
                 HttpMethod.GET,
                 null,
