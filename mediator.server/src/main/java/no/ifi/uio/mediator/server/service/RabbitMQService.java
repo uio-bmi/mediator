@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.support.MessagePropertiesConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -43,8 +44,7 @@ public class RabbitMQService {
         MessageProperties messageProperties = message.getMessageProperties();
         String exchange = messageProperties.getReceivedExchange();
         String routingKey = messageProperties.getReceivedRoutingKey();
-        log.info("Postinmg to exchange {}, with routing key {}, message {}", exchange, routingKey,
-                message.getBody().toString());
+        log.info("Posting to exchange {}, with routing key {}, message {}", exchange, routingKey, message.getBody());
         channel.basicPublish(exchange,
                 routingKey,
                 messagePropertiesConverter.fromMessageProperties(messageProperties,

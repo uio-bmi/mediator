@@ -13,12 +13,26 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Integration tests:
+ * - forwarding message from Public Infrastructure to Private Infrastructure;
+ * - forwarding message from Private Infrastructure to CEGA.
+ */
 public class Tests {
 
     private static Channel remoteChannel;
     private static Channel publicChannel;
     private static Channel privateChannel;
 
+    /**
+     * Initializing connection to 3 queues: Remote (CEGA), Public (OpenStack) and Private (TSD).
+     *
+     * @throws IOException              In case of error.
+     * @throws TimeoutException         In case of error.
+     * @throws NoSuchAlgorithmException In case of error.
+     * @throws KeyManagementException   In case of error.
+     * @throws URISyntaxException       In case of error.
+     */
     @BeforeClass
     public static void setUp() throws IOException, TimeoutException, NoSuchAlgorithmException, KeyManagementException, URISyntaxException {
         ConnectionFactory remoteFactory = new ConnectionFactory();
@@ -34,6 +48,12 @@ public class Tests {
         privateChannel = privateFactory.newConnection().createChannel();
     }
 
+    /**
+     * Forwarding message from Public Infrastructure to Private Infrastructure.
+     *
+     * @throws IOException          In case of error.
+     * @throws InterruptedException In case of error.
+     */
     @Test
     public void fromPublicToPrivate() throws IOException, InterruptedException {
         byte[] sentBody = {1, 2, 3};
@@ -45,6 +65,12 @@ public class Tests {
         Assert.assertArrayEquals(sentBody, receivedBody);
     }
 
+    /**
+     * Forwarding message from Private Infrastructure to CEGA
+     *
+     * @throws IOException          In case of error.
+     * @throws InterruptedException In case of error.
+     */
     @Test
     public void fromPrivateToRemote() throws IOException, InterruptedException {
         byte[] sentBody = {1, 2, 3};

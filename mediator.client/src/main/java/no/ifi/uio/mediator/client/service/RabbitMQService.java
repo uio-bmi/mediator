@@ -51,7 +51,7 @@ public class RabbitMQService {
         ResponseEntity<Void> responseEntity = restTemplate.postForEntity("http://mediator-server/post", message, Void.class);
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             try {
-            	log.info("Achnowledging  {} ",message.getMessageProperties().getDeliveryTag());
+                log.info("Acknowledging {}", message.getMessageProperties().getDeliveryTag());
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
@@ -84,7 +84,7 @@ public class RabbitMQService {
             String exchange = envelope.getExchange();
             String routingKey = envelope.getRoutingKey();
             MessageProperties messageProperties = messagePropertiesConverter.toMessageProperties(message.getProps(), envelope, Charset.defaultCharset().toString());
-            log.info("Received from Exchange {}, with key {}, message {} ",exchange, routingKey, message.getBody());
+            log.info("Received from exchange {}, with key {}, message {}", exchange, routingKey, message.getBody());
             rabbitTemplate.send(exchange, routingKey, new Message(message.getBody(), messageProperties));
             restTemplate.postForEntity("http://mediator-server/ack/" + messageProperties.getDeliveryTag(), null, Void.class);
         }
