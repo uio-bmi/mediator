@@ -6,6 +6,7 @@ import com.rabbitmq.client.GetResponse;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -26,11 +27,11 @@ public class Tests {
     /**
      * Initializing connection to 3 queues: Remote (CEGA), Public (OpenStack) and Private (TSD).
      *
-     * @throws IOException In case of error.
-     * @throws TimeoutException In case of error.
+     * @throws IOException              In case of error.
+     * @throws TimeoutException         In case of error.
      * @throws NoSuchAlgorithmException In case of error.
-     * @throws KeyManagementException In case of error.
-     * @throws URISyntaxException In case of error.
+     * @throws KeyManagementException   In case of error.
+     * @throws URISyntaxException       In case of error.
      */
     @BeforeClass
     public static void setUp() throws IOException, TimeoutException, NoSuchAlgorithmException,
@@ -51,12 +52,11 @@ public class Tests {
     /**
      * Forwarding message from Public Infrastructure to Private Infrastructure with routing key archived.
      *
-     * @throws IOException In case of error.
+     * @throws IOException          In case of error.
      * @throws InterruptedException In case of error.
      */
     @Test
     public void fromPublicToPrivateRoutingKeyArchived() throws IOException, InterruptedException {
-
         publicChannel.basicPublish("lega", "archived", null, SENT_BODY);
         sleep(10000);
         GetResponse getResponse = privateChannel.basicGet("archived", true);
@@ -69,12 +69,11 @@ public class Tests {
     /**
      * Forwarding message from Public Infrastructure to Private Infrastructure with routing key archived.
      *
-     * @throws IOException In case of error.
+     * @throws IOException          In case of error.
      * @throws InterruptedException In case of error.
      */
     @Test
     public void fromPublicToPrivateRoutingKeyUnarchived() throws IOException, InterruptedException {
-        
         publicChannel.basicPublish("lega", "unarchived", null, SENT_BODY);
         sleep(10000);
         GetResponse getResponse = privateChannel.basicGet("unarchived", true);
@@ -82,11 +81,11 @@ public class Tests {
         byte[] receivedBody = getResponse.getBody();
         Assert.assertArrayEquals(SENT_BODY, receivedBody);
     }
-    
+
     /**
      * Forwarding message from Private Infrastructure to CEGA with routing key completed
      *
-     * @throws IOException In case of error.
+     * @throws IOException          In case of error.
      * @throws InterruptedException In case of error.
      */
     @Test
@@ -102,7 +101,7 @@ public class Tests {
     /**
      * Forwarding message from Private Infrastructure to CEGA with routing key incompleted
      *
-     * @throws IOException In case of error.
+     * @throws IOException          In case of error.
      * @throws InterruptedException In case of error.
      */
     @Test
