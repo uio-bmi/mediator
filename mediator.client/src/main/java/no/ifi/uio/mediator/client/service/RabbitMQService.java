@@ -46,7 +46,7 @@ public class RabbitMQService {
      * @param channel RabbitMQ channel.
      * @param message Received message.
      */
-    @RabbitListener(queues = "#{'${queues}'.split(',')}")
+    @RabbitListener(queues = "#{'${queues}'.trim().replaceAll(\" +\", \"\").split(',')}")
     public void receiveMessage(Channel channel, Message message) {
         ResponseEntity<Void> responseEntity = restTemplate.postForEntity("http://mediator-server/post", message, Void.class);
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
