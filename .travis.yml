@@ -17,3 +17,10 @@ after_failure:
   - cd docker
   - docker-compose logs mediator-server
   - docker-compose logs mediator-client
+
+after_success:
+- if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
+    docker push uiobmi/mediator.server:latest;
+    docker push uiobmi/mediator.client:latest;
+  fi
