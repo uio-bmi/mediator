@@ -15,11 +15,11 @@ spring:
     listener.direct.acknowledge-mode: manual
   cloud.refresh.refreshable: none
 
-initial-delay: 10000
+initial-delay: ${INITIAL_DELAY:10000}
 
-fixed-rate: 10000
+fixed-rate: ${FIXED_RATE:10000}
 
-queues: archived, unarchived
+queues: ${QUEUES:archived}
 
 mediator-server:
   listOfServers: ${MEDIATOR_SERVER:mediator-server:8080}

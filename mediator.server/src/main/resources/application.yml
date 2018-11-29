@@ -12,8 +12,8 @@ spring:
     host: ${BROKER_HOST:private-mq}
     port: ${BROKER_PORT:5672}
 
-queue: mediator
+queue: ${QUEUE:mediator}
 
-exchange: lega
+exchange: ${EXCHANGE:lega}
 
-keys: completed, incompleted
+keys: ${KEYS:completed}
