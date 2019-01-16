@@ -44,7 +44,7 @@ public class RabbitMQService {
         MessageProperties messageProperties = message.getMessageProperties();
         String exchange = messageProperties.getReceivedExchange();
         String routingKey = messageProperties.getReceivedRoutingKey();
-        log.info("Posting to exchange {}, with routing key {}, message {}", exchange, routingKey, message.getBody());
+        log.info("Posting to exchange {}, with routing key {}", exchange, routingKey);
         channel.basicPublish(exchange,
                 routingKey,
                 messagePropertiesConverter.fromMessageProperties(messageProperties,
