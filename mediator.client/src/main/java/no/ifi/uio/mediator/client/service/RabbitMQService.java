@@ -48,14 +48,18 @@ public class RabbitMQService {
      */
     @RabbitListener(queues = "#{'${queues}'.trim().replaceAll(\" +\", \"\").split(',')}")
     public void receiveMessage(Channel channel, Message message) {
+        MessageProperties messageProperties = message.getMessageProperties();
+        log.info("Message received. Exchange: {}, routing key: {}", messageProperties.getReceivedExchange(), messageProperties.getReceivedRoutingKey());
         ResponseEntity<Void> responseEntity = restTemplate.postForEntity("http://mediator-server/post", message, Void.class);
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             try {
-                log.info("Acknowledging {}", message.getMessageProperties().getDeliveryTag());
-                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+                log.info("Acknowledging {}", messageProperties.getDeliveryTag());
+                channel.basicAck(messageProperties.getDeliveryTag(), false);
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
             }
+        } else {
+            log.error("Can't contact mediator-server: {}", responseEntity.getStatusCode());
         }
     }
 
