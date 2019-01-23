@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -48,18 +49,22 @@ public class RabbitMQService {
      */
     @RabbitListener(queues = "#{'${queues}'.trim().replaceAll(\" +\", \"\").split(',')}")
     public void receiveMessage(Channel channel, Message message) {
-        MessageProperties messageProperties = message.getMessageProperties();
-        log.info("Message received. Exchange: {}, routing key: {}", messageProperties.getReceivedExchange(), messageProperties.getReceivedRoutingKey());
-        ResponseEntity<Void> responseEntity = restTemplate.postForEntity("http://mediator-server/post", message, Void.class);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            try {
-                log.info("Acknowledging {}", messageProperties.getDeliveryTag());
-                channel.basicAck(messageProperties.getDeliveryTag(), false);
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
+        try {
+            MessageProperties messageProperties = message.getMessageProperties();
+            log.info("Message received. Exchange: {}, routing key: {}", messageProperties.getReceivedExchange(), messageProperties.getReceivedRoutingKey());
+            ResponseEntity<Void> responseEntity = restTemplate.postForEntity("http://mediator-server/post", message, Void.class);
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                try {
+                    log.info("Acknowledging {}", messageProperties.getDeliveryTag());
+                    channel.basicAck(messageProperties.getDeliveryTag(), false);
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            } else {
+                log.error("Can't contact mediator-server: {}", responseEntity.getStatusCode());
             }
-        } else {
-            log.error("Can't contact mediator-server: {}", responseEntity.getStatusCode());
+        } catch (ResourceAccessException e) {
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -69,28 +74,33 @@ public class RabbitMQService {
      */
     @Scheduled(initialDelayString = "${initial-delay}", fixedRateString = "${fixed-rate}")
     public void dumpMessages() {
-        ResponseEntity<Collection<GetResponse>> responseEntity = restTemplate.exchange("http://mediator-server/get",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<Collection<GetResponse>>() {
-                });
-        if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-            log.error(responseEntity.toString());
-            return;
-        }
-        Collection<GetResponse> messages = responseEntity.getBody();
-        if (messages == null || messages.size() == 0) {
-            return;
-        }
-        log.info("Received {} messages.", messages.size());
-        for (GetResponse message : messages) {
-            Envelope envelope = message.getEnvelope();
-            String exchange = envelope.getExchange();
-            String routingKey = envelope.getRoutingKey();
-            MessageProperties messageProperties = messagePropertiesConverter.toMessageProperties(message.getProps(), envelope, Charset.defaultCharset().toString());
-            log.info("Received from exchange {}, with key {}, message {}", exchange, routingKey, message.getBody());
-            rabbitTemplate.send(exchange, routingKey, new Message(message.getBody(), messageProperties));
-            restTemplate.postForEntity("http://mediator-server/ack/" + messageProperties.getDeliveryTag(), null, Void.class);
+        try {
+            ResponseEntity<Collection<GetResponse>> responseEntity = restTemplate.exchange("http://mediator-server/get",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<Collection<GetResponse>>() {
+                    });
+
+            if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+                log.error("Can't contact mediator-server: {}", responseEntity.getStatusCode());
+                return;
+            }
+            Collection<GetResponse> messages = responseEntity.getBody();
+            if (messages == null || messages.size() == 0) {
+                return;
+            }
+            log.info("Received {} messages.", messages.size());
+            for (GetResponse message : messages) {
+                Envelope envelope = message.getEnvelope();
+                String exchange = envelope.getExchange();
+                String routingKey = envelope.getRoutingKey();
+                MessageProperties messageProperties = messagePropertiesConverter.toMessageProperties(message.getProps(), envelope, Charset.defaultCharset().toString());
+                log.info("Received from exchange {}, with key {}", exchange, routingKey);
+                rabbitTemplate.send(exchange, routingKey, new Message(message.getBody(), messageProperties));
+                restTemplate.postForEntity("http://mediator-server/ack/" + messageProperties.getDeliveryTag(), null, Void.class);
+            }
+        } catch (ResourceAccessException e) {
+            log.error(e.getMessage(), e);
         }
     }
 
